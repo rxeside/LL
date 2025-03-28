@@ -11,14 +11,12 @@ type ParsingTableRow = {
     end: boolean
 }
 
-type ParsingTable = ParsingTable[]
-
-
-const parseGrammar = (grammar: IndexedGrammar): ParsingTable => {
-
-}
-
+// type ParsingTable = ParsingTable[]
+//
+// const parseGrammar = (grammar: IndexedGrammar): ParsingTable => {
+//
+// }
 
 export {
-    parseGrammar
+    // parseGrammar
 }
