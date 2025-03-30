@@ -16,6 +16,7 @@ const parseGrammar = (grammar: string[]): TableRow[] => {
     let initialTable: TableRow[] = []
     let table: TableRow[] = []
     let lineNumber = 1
+    let nonTerminalMap = new Map<string, number[]>()
 
     // первые строки - инициализация
     for (const rule of grammar) {
@@ -36,6 +37,12 @@ const parseGrammar = (grammar: string[]): TableRow[] => {
         }
         initialTable.push(row)
         table.push(row)
+
+        if (!nonTerminalMap.has(leftSide)) {
+            nonTerminalMap.set(leftSide, [])
+        }
+        nonTerminalMap.get(leftSide)!.push(lineNumber)
+
         lineNumber++
     }
 
@@ -93,18 +100,17 @@ const parseGrammar = (grammar: string[]): TableRow[] => {
         }
     }
 
-
-    for (const row of initialTable) {
-        for (const symbol of row.rightSide) {
-            if (symbol[1] === "<") {
-
-            }
+    // указатель
+    for (const [nonTerminal, lines] of nonTerminalMap.entries()) {
+        for (let i = 0; i < lines.length; i++) {
+            const index = lines[i] - 1
+            table[index].pointer = lines[0] // Указываем на первую альтернативу
         }
     }
 
 
 
-        return table
+    return table
 };
 
 const main = () => {
