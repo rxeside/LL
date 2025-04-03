@@ -1,4 +1,4 @@
-import {TableRow} from './types'
+import {TableRow} from '@common/types'
 
 const generateTable = (grammar: string[]): TableRow[] => {
     let initialTable: TableRow[] = []
@@ -99,7 +99,6 @@ const generateTable = (grammar: string[]): TableRow[] => {
             table[index].pointer = lines[0]
         }
     }
-
 
     // стек
     for (const row of table) {

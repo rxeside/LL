@@ -1,4 +1,3 @@
-
 class Stack<T> {
     private storage: T[] = []
 

@@ -1,5 +1,6 @@
-import {TableRow} from './types'
+import {TableRow} from '@common/types'
 
+//TODO: доработать - это мок
 const parseTable = (grammarTable: TableRow[], inputString: string): boolean => {
     // Стек с начальным символом грамматики (в данном случае <S>)
     const stack: string[] = ['<S>'];

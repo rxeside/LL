@@ -1,5 +1,5 @@
-import {generateTable} from './generator'
-import {parseTable} from './LLParser'
+import {generateTable} from '@src/generator'
+import {parseTable} from '@src/parser'
 
 const main = () => {
     const grammarSample = [

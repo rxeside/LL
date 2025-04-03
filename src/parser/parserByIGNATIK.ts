@@ -1,4 +1,4 @@
-import {TableRow} from './types'
+import {TableRow} from '@common/types'
 
 const parseString = (input: string, table: TableRow[]): string => {
     let pointer = 0
