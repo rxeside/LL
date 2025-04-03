@@ -46,6 +46,7 @@ enum Lexeme {
     DOT = '.',
     DOUBLE_EQ = '==',
     NEGATION = '!',
+    GRID = '#',
 
     // Литералы и идентификаторы
     IDENTIFIER = 'IDENTIFIER',
