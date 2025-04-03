@@ -1,4 +1,11 @@
-import {TableRow} from '@common/types'
+import {Table, TableRow} from '@common/types'
+import {
+    SEPARATOR_COMMA,
+    SEPARATOR_SPACED_FALLOW,
+    SEPARATOR_SPACED_SLASH,
+    SYMBOL_EMPTY,
+    SYMBOL_END,
+} from '@common/consts'
 
 const REGEXP: RegExp = /<[^>]+>|[^<>\s]+/g
 
@@ -127,7 +134,7 @@ const generateTable = (grammar: string[]): Table => {
 
 const getGuidingSymbolsForEmpty = (currentLeft: string, table: Table, temp: string[]): string[] => {
     table.forEach((row, tableIndex) => {
-        row.rightSide.forEach((rightSymbol, index)=>{
+        row.rightSide.forEach((rightSymbol, index) => {
             if (currentLeft === rightSymbol) {
                 if (index === row.rightSide.length - 1) {
                     if (tableIndex == 0) {
@@ -140,9 +147,9 @@ const getGuidingSymbolsForEmpty = (currentLeft: string, table: Table, temp: stri
                 }
             }
         })
-    });
+    })
 
-    return temp;
+    return temp
 }
 
 const getGuidingSymbols = (table: Table, left: string): string[] => {

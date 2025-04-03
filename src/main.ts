@@ -1,7 +1,8 @@
 import {generateTable} from '@src/generator'
-import {parseTable} from '@src/parser'
+import {parseString, parseTable} from '@src/parser'
 import {optimize} from '@src/optimizer'
 import {Lexer} from '@src/lexer'
+import {Table} from '@common/types'
 
 const NON_OPTIMIZED_GRAMMAR = `
 <Prog> -> <If>|<Ass>
@@ -33,7 +34,7 @@ const NON_OPTIMIZED_GRAMMAR = `
 //     "<Else> -> else<Ass> / else",
 // ]
 
-const table: TableRow[] = [
+const table: Table = [
     { index: 1, symbol: '<S>', guidingSymbols: new Set('a'), isError: true, pointer: 2, stackPushIndex: -1, isShift: false, isParsingEnd: false, rightSide: null },
     { index: 2, symbol: 'a', guidingSymbols: new Set('a'), isError: true, pointer: 3, stackPushIndex: -1, isShift: true, isParsingEnd: false, rightSide: null },
     { index: 3, symbol: '<B>', guidingSymbols: new Set('b'), isError: true, pointer: 5, stackPushIndex: 4, isShift: false, isParsingEnd: false, rightSide: null },
