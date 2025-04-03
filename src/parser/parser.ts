@@ -1,6 +1,11 @@
 import {Table} from '@common/types'
 
 //TODO: доработать - это мок
+//TODO: можно использовать стек из '@common/stack'
+//TODO: можно использовать очередь из '@common/queue'
+
+//TODO: все общие константы в '@common/consts'
+
 const parseTable = (grammarTable: Table, inputString: string): boolean => {
     // Стек с начальным символом грамматики (в данном случае <S>)
     const stack: string[] = ['<S>'];

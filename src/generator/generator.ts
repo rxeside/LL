@@ -1,4 +1,13 @@
 import {Table, TableRow} from '@common/types'
+import {
+    SEPARATOR_COMMA,
+    SEPARATOR_SPACED_FALLOW,
+    SEPARATOR_SPACED_SLASH,
+    SYMBOL_EMPTY,
+    SYMBOL_END,
+} from '@common/consts'
+
+const REGEXP: RegExp = /<[^>]+>|[^<>\s]+/g
 
 const generateTable = (grammar: string[]): Table => {
     let initialTable: Table = []
@@ -8,10 +17,10 @@ const generateTable = (grammar: string[]): Table => {
 
     // первые строки - инициализация
     for (const rule of grammar) {
-        const [production, guidingPart] = rule.split(' / ')
-        const [leftSide, rightSide] = production.split(' -> ')
-        const guidingSymbols = new Set(guidingPart.split(', ').map(s => s.trim()))
-        const symbols = rightSide.match(/<[^>]+>|[^<>\s]+/g) || []
+        const [production, guidingPart] = rule.split(SEPARATOR_SPACED_SLASH)
+        const [leftSide, rightSide] = production.split(SEPARATOR_SPACED_FALLOW)
+        const guidingSymbols = new Set(guidingPart.split(SEPARATOR_COMMA).map(s => s.trim()))
+        const symbols = rightSide.match(REGEXP) || []
         const row: TableRow = {
             index: lineNumber,
             symbol: leftSide,
@@ -43,7 +52,7 @@ const generateTable = (grammar: string[]): Table => {
                 symbol: symbol,
                 guidingSymbols: symbol[0] === '<'
                     ? new Set(...equals.map(row => Array.from(row.guidingSymbols)))
-                    : symbol !== 'e'
+                    : symbol !== SYMBOL_EMPTY
                         ? new Set(symbol)
                         : new Set(),
                 isError: true,
@@ -60,7 +69,7 @@ const generateTable = (grammar: string[]): Table => {
     // замена e в left и в направляющих множествах
     for (const row of table) {
         let t: string[] = []
-        if (Array.from(row.guidingSymbols.values())[0] === 'e' || row.symbol === 'e') {
+        if (Array.from(row.guidingSymbols.values())[0] === SYMBOL_EMPTY || row.symbol === SYMBOL_EMPTY) {
             const left = row.symbol
             for (const row of initialTable) {
                 for (let i = 0; i < row.rightSide.length; i++) {
@@ -69,7 +78,7 @@ const generateTable = (grammar: string[]): Table => {
                             t.push(row.rightSide[i + 1])
 
                         } else {
-                            t.push('#')
+                            t.push(SYMBOL_END)
                         }
                     }
                 }
@@ -84,8 +93,8 @@ const generateTable = (grammar: string[]): Table => {
             break
         }
         if (!table[i] || !table[i + 1]) {
-            console.error(`Ошибка: table[${i}] или table[${i + 1}] равно undefined`);
-            continue;
+            console.error(`Ошибка: table[${i}] или table[${i + 1}] равно undefined`)
+            continue
         }
         if (table[i].symbol === table[i + 1].symbol) {
             table[i].isError = false
@@ -119,7 +128,7 @@ const generateTable = (grammar: string[]): Table => {
 
     // конец
     for (const row of table) {
-        row.symbol == '#' ? row.isParsingEnd == true : row.isParsingEnd == false
+        row.symbol == SYMBOL_END ? row.isParsingEnd == true : row.isParsingEnd == false
     }
 
     return table
