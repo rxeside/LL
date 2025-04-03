@@ -1,17 +1,26 @@
-import {TableRow} from '@common/types'
+import {Table, TableRow} from '@common/types'
+import {
+    SEPARATOR_COMMA,
+    SEPARATOR_SPACED_FALLOW,
+    SEPARATOR_SPACED_SLASH,
+    SYMBOL_EMPTY,
+    SYMBOL_END,
+} from '@common/consts'
 
-const generateTable = (grammar: string[]): TableRow[] => {
-    let initialTable: TableRow[] = []
-    let table: TableRow[] = []
+const REGEXP: RegExp = /<[^>]+>|[^<>\s]+/g
+
+const generateTable = (grammar: string[]): Table => {
+    let initialTable: Table = []
+    let table: Table = []
     let lineNumber = 1
     let nonTerminalMap = new Map<string, number[]>()
 
-    // первые строки - инициализация
+    // первые строки - инициализация по альтернативам
     for (const rule of grammar) {
-        const [production, guidingPart] = rule.split(' / ')
-        const [leftSide, rightSide] = production.split(' -> ')
-        const guidingSymbols = new Set(guidingPart.split(', ').map(s => s.trim()))
-        const symbols = rightSide.match(/<[^>]+>|[^<>\s]+/g) || []
+        const [production, guidingPart] = rule.split(SEPARATOR_SPACED_SLASH)
+        const [leftSide, rightSide] = production.split(SEPARATOR_SPACED_FALLOW)
+        const guidingSymbols = new Set(guidingPart.split(SEPARATOR_COMMA).map(s => s.trim()))
+        const symbols = rightSide.match(REGEXP) || []
         const row: TableRow = {
             index: lineNumber,
             symbol: leftSide,
@@ -43,9 +52,7 @@ const generateTable = (grammar: string[]): TableRow[] => {
                 symbol: symbol,
                 guidingSymbols: symbol[0] === '<'
                     ? new Set(...equals.map(row => Array.from(row.guidingSymbols)))
-                    : symbol !== 'e'
-                        ? new Set(symbol)
-                        : new Set(),
+                    : new Set(symbol),
                 isError: true,
                 isShift: false,
                 pointer: null,
@@ -60,7 +67,7 @@ const generateTable = (grammar: string[]): TableRow[] => {
     // замена e в left и в направляющих множествах
     for (const row of table) {
         let t: string[] = []
-        if (Array.from(row.guidingSymbols.values())[0] === 'e' || row.symbol === 'e') {
+        if (Array.from(row.guidingSymbols.values())[0] === SYMBOL_EMPTY || row.symbol === SYMBOL_EMPTY) {
             const left = row.symbol
             for (const row of initialTable) {
                 for (let i = 0; i < row.rightSide.length; i++) {
@@ -69,7 +76,7 @@ const generateTable = (grammar: string[]): TableRow[] => {
                             t.push(row.rightSide[i + 1])
 
                         } else {
-                            t.push('#')
+                            t.push(SYMBOL_END)
                         }
                     }
                 }
@@ -84,8 +91,8 @@ const generateTable = (grammar: string[]): TableRow[] => {
             break
         }
         if (!table[i] || !table[i + 1]) {
-            console.error(`Ошибка: table[${i}] или table[${i + 1}] равно undefined`);
-            continue;
+            console.error(`Ошибка: table[${i}] или table[${i + 1}] равно undefined`)
+            continue
         }
         if (table[i].symbol === table[i + 1].symbol) {
             table[i].isError = false
@@ -93,7 +100,7 @@ const generateTable = (grammar: string[]): TableRow[] => {
     }
 
     // указатель
-    for (const [nonTerminal, lines] of Array.from(nonTerminalMap.entries())) {
+    for (const [_, lines] of Array.from(nonTerminalMap.entries())) {
         for (let i = 0; i < lines.length; i++) {
             const index = lines[i] - 1
             table[index].pointer = lines[0]
@@ -119,10 +126,41 @@ const generateTable = (grammar: string[]): TableRow[] => {
 
     // конец
     for (const row of table) {
-        row.symbol == '#' ? row.isParsingEnd == true : row.isParsingEnd == false
+        row.symbol == SYMBOL_END ? row.isParsingEnd == true : row.isParsingEnd == false
     }
 
     return table
+}
+
+const getGuidingSymbolsForEmpty = (currentLeft: string, table: Table, temp: string[]): string[] => {
+    table.forEach((row, tableIndex) => {
+        row.rightSide.forEach((rightSymbol, index)=>{
+            if (currentLeft === rightSymbol) {
+                if (index === row.rightSide.length - 1) {
+                    if (tableIndex == 0) {
+                        temp.push(SYMBOL_END)
+                    } else {
+                        temp.push(...getGuidingSymbolsForEmpty(row.symbol, table, temp))
+                    }
+                } else {
+                    temp.push(...getGuidingSymbols(table, rightSymbol))
+                }
+            }
+        })
+    });
+
+    return temp;
+}
+
+const getGuidingSymbols = (table: Table, left: string): string[] => {
+    const temp: string[] = []
+    table.map(row => {
+        if (row.symbol === left) {
+            temp.push(...Array.from(row.guidingSymbols))
+        }
+    })
+
+    return temp
 }
 
 export {
