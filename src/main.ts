@@ -25,7 +25,6 @@ const NON_OPTIMIZED_GRAMMAR = `
 //     "<Else> -> else<Ass> / else",
 // ]
 
-
 const main = () => {
     const optimizedGrammar = optimize(NON_OPTIMIZED_GRAMMAR)
     const table = generateTable(optimizedGrammar.split('\n'))

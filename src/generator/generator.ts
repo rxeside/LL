@@ -1,8 +1,8 @@
-import {TableRow} from '@common/types'
+import {Table, TableRow} from '@common/types'
 
-const generateTable = (grammar: string[]): TableRow[] => {
-    let initialTable: TableRow[] = []
-    let table: TableRow[] = []
+const generateTable = (grammar: string[]): Table => {
+    let initialTable: Table = []
+    let table: Table = []
     let lineNumber = 1
     let nonTerminalMap = new Map<string, number[]>()
 
@@ -93,7 +93,7 @@ const generateTable = (grammar: string[]): TableRow[] => {
     }
 
     // указатель
-    for (const [nonTerminal, lines] of Array.from(nonTerminalMap.entries())) {
+    for (const [_, lines] of Array.from(nonTerminalMap.entries())) {
         for (let i = 0; i < lines.length; i++) {
             const index = lines[i] - 1
             table[index].pointer = lines[0]

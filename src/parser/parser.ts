@@ -1,7 +1,7 @@
-import {TableRow} from '@common/types'
+import {Table} from '@common/types'
 
 //TODO: доработать - это мок
-const parseTable = (grammarTable: TableRow[], inputString: string): boolean => {
+const parseTable = (grammarTable: Table, inputString: string): boolean => {
     // Стек с начальным символом грамматики (в данном случае <S>)
     const stack: string[] = ['<S>'];
     const input = inputString.split(' '); // Разделяем строку на терминалы по пробелам
@@ -18,11 +18,7 @@ const parseTable = (grammarTable: TableRow[], inputString: string): boolean => {
             pointer++;
         } else if (stackTop === '#') {
             // Если мы дошли до конца строки и ожидаем символ '#'
-            if (pointer === input.length) {
-                return true; // Разбор успешен
-            } else {
-                return false; // Ошибка: конец строки не совпадает с ожидаемым #
-            }
+            return pointer === input.length;
         } else if (stackTop.startsWith('<') && stackTop.endsWith('>')) {
             // Если верх стека — это нетерминал (например, <S>)
             const applicableRule = grammarTable.find(row => row.symbol === stackTop &&

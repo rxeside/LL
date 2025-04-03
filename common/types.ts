@@ -10,6 +10,8 @@ type TableRow = {
     rightSide: string[] | null
 };
 
+type Table = TableRow[]
+
 enum Lexeme {
     // Ключевые слова
     IF = 'IF',
@@ -73,6 +75,7 @@ type Token = {
 
 export {
     TableRow,
+    Table,
     Lexeme,
     Position,
     Token,
