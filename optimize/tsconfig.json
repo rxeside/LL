@@ -1,8 +1,0 @@
-{
-  "compilerOptions": {
-    "target": "es2015",
-    "module": "commonjs",
-    "downlevelIteration": true,
-    "lib": ["es2015", "dom"]
-  }
-}

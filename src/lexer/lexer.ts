@@ -25,9 +25,29 @@ class Lexer {
     private line: number = 1
     private column: number = 0
 
-    constructor(text: string) {
+    constructor() {
+    }
+
+    public tokenize(text: string): Token[] {
+        this.reset()
         this.text = text
         this.currentChar = this.text[this.pos] || null
+
+        const tokens: Token[] = []
+        let token: Token | null
+        do {
+            token = this.nextToken()
+            if (token) tokens.push(token)
+        } while (token && token.type !== Lexeme.EOF)
+        return tokens
+    }
+
+    private reset(): void {
+        this.text = ''
+        this.pos = 0
+        this.currentChar = null
+        this.line = 1
+        this.column = 0
     }
 
     private advance(): void {
@@ -336,7 +356,7 @@ class Lexer {
         }
     }
 
-    public nextToken(): Token | null {
+    private nextToken(): Token | null {
         while (this.currentChar) {
             if (/\s/.test(this.currentChar)) {
                 this.skipWhitespace()
@@ -364,16 +384,6 @@ class Lexer {
             lexeme: '',
             position: {line: this.line, column: this.column},
         }
-    }
-
-    public tokenize(): Token[] {
-        const tokens: Token[] = []
-        let token: Token | null
-        do {
-            token = this.nextToken()
-            if (token) tokens.push(token)
-        } while (token && token.type !== Lexeme.EOF)
-        return tokens
     }
 }
 
