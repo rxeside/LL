@@ -35,16 +35,16 @@ const NON_OPTIMIZED_GRAMMAR = `
 // ]
 
 const table: Table = [
-    { index: 1, symbol: '<S>', guidingSymbols: new Set('a'), isError: true, pointer: 2, stackPushIndex: -1, isShift: false, isParsingEnd: false, rightSide: null },
-    { index: 2, symbol: 'a', guidingSymbols: new Set('a'), isError: true, pointer: 3, stackPushIndex: -1, isShift: true, isParsingEnd: false, rightSide: null },
+    { index: 1, symbol: '<S>', guidingSymbols: new Set('a'), isError: true, pointer: 2, stackPushIndex: null, isShift: false, isParsingEnd: false, rightSide: null },
+    { index: 2, symbol: 'a', guidingSymbols: new Set('a'), isError: true, pointer: 3, stackPushIndex: null, isShift: true, isParsingEnd: false, rightSide: null },
     { index: 3, symbol: '<B>', guidingSymbols: new Set('b'), isError: true, pointer: 5, stackPushIndex: 4, isShift: false, isParsingEnd: false, rightSide: null },
-    { index: 4, symbol: '#', guidingSymbols: new Set('#'), isError: true, pointer: -1, stackPushIndex: -1, isShift: true, isParsingEnd: true, rightSide: null },
-    { index: 5, symbol: '<B>', guidingSymbols: new Set('b'), isError: true, pointer: 6, stackPushIndex: -1, isShift: false, isParsingEnd: false, rightSide: null },
-    { index: 6, symbol: 'b', guidingSymbols: new Set('b'), isError: true, pointer: 7, stackPushIndex: -1, isShift: true, isParsingEnd: false, rightSide: null },
-    { index: 7, symbol: '<C>', guidingSymbols: new Set(['b', '#']), isError: true, pointer: 8, stackPushIndex: -1, isShift: false, isParsingEnd: false, rightSide: null },
-    { index: 8, symbol: '<C>', guidingSymbols: new Set(['b', '#']), isError: true, pointer: 9, stackPushIndex: -1, isShift: false, isParsingEnd: false, rightSide: null },
-    { index: 9, symbol: 'b', guidingSymbols: new Set('b'), isError: false, pointer: 10, stackPushIndex: -1, isShift: true, isParsingEnd: false, rightSide: null },
-    { index: 10, symbol: '<C>', guidingSymbols: new Set(['b', '#']), isError: true, pointer: 8, stackPushIndex: -1, isShift: false, isParsingEnd: false, rightSide: null }
+    { index: 4, symbol: '#', guidingSymbols: new Set('#'), isError: true, pointer: -1, stackPushIndex: null, isShift: true, isParsingEnd: true, rightSide: null },
+    { index: 5, symbol: '<B>', guidingSymbols: new Set('b'), isError: true, pointer: 6, stackPushIndex: null, isShift: false, isParsingEnd: false, rightSide: null },
+    { index: 6, symbol: 'b', guidingSymbols: new Set('b'), isError: true, pointer: 7, stackPushIndex: null, isShift: true, isParsingEnd: false, rightSide: null },
+    { index: 7, symbol: '<C>', guidingSymbols: new Set(['b', '#']), isError: true, pointer: 8, stackPushIndex: null, isShift: false, isParsingEnd: false, rightSide: null },
+    { index: 8, symbol: '<C>', guidingSymbols: new Set(['b', '#']), isError: true, pointer: 9, stackPushIndex: null, isShift: false, isParsingEnd: false, rightSide: null },
+    { index: 9, symbol: 'b', guidingSymbols: new Set('b'), isError: false, pointer: 10, stackPushIndex: null, isShift: true, isParsingEnd: false, rightSide: null },
+    { index: 10, symbol: '<C>', guidingSymbols: new Set(['b', '#']), isError: true, pointer: 8, stackPushIndex: null, isShift: false, isParsingEnd: false, rightSide: null }
 ];
 
 const main = () => {
@@ -52,7 +52,7 @@ const main = () => {
     // const table = generateTable(optimizedGrammar.split('\n'))
     // console.log(table)
 
-    const input = 'a b'
+    const input = 'a b b b b b b b b b'
     const lexer = new Lexer()
     const tokens = lexer.tokenize(input)
     console.log(tokens)

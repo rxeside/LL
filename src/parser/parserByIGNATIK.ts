@@ -24,8 +24,8 @@ const parseString = (tokens: Token[], table: TableRow[]): string => {
         // Если символ в guidingSymbols совпадает с лексемой текущего токена
         if (row.guidingSymbols.has(currentToken.lexeme)) {
             if (row.isShift) pointer++ // Продвигаем указатель, если есть сдвиг
-            if (row.stackPushIndex !== -1) stack.push(row.stackPushIndex) // Добавляем в стек, если указано
-            if (row.pointer !== -1) stack.push(row.pointer) // Переходим к следующему шагу
+            if (row.stackPushIndex !== null) stack.push(row.stackPushIndex) // Добавляем в стек, если указано
+            if (row.pointer !== null) stack.push(row.pointer) // Переходим к следующему шагу
             if (pointer === tokens.length) return `OK\nTrace:\n${trace.join('\n')}`
         } else if (currentToken.type == 'EOF') {
             return `OK\nTrace:\n${trace.join('\n')}`
@@ -48,7 +48,7 @@ const parseString = (tokens: Token[], table: TableRow[]): string => {
     }
 
     // Если указатель не дошёл до конца строки, значит входной текст обработан не полностью
-    return pointer === tokens.length ? `OK\nTrace:\n${trace.join('\n')}` : `Error\nTrace:\n${trace.join('\n')}`
+    return pointer === tokens.length ? `OK\nTrace:\n${trace.join('\n')}` : `Error: Pointer did not reach the end of the line\nTrace:\n${trace.join('\n')}`
 }
 
 export {
