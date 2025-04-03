@@ -36,7 +36,8 @@ const main = () => {
     const tokens = lexer.tokenize(input)
     console.log(tokens)
 
-    if (parseTable(table, '// TODO: inputString')) {
+    // TODO: тут нужно парсить токены а не строку, строка юзается только в Lexer
+    if (parseTable(table, '// TODO: tokens')) {
         console.log('Строка принадлежит языку')
     } else {
         console.log('Строка НЕ принадлежит языку')
