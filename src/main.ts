@@ -1,6 +1,7 @@
-import {parseString} from '@src/parser'
+import {generateTable} from '@src/generator'
+import {parseTable} from '@src/parser'
+import {optimize} from '@src/optimizer'
 import {Lexer} from '@src/lexer'
-import { TableRow } from '@common/types'
 
 const NON_OPTIMIZED_GRAMMAR = `
 <Prog> -> <If>|<Ass>
@@ -17,11 +18,11 @@ const NON_OPTIMIZED_GRAMMAR = `
 `
 
 // const NON_OPTIMIZED_GRAMMAR = `
-// <S>  -> <A><B>  
-// <B>  -> <C><B> | <D>  
-// <C>  -> <C><B> | <D>  
-// <D>  -> b  
-// <A>  -> a 
+// <S>  -> <A><B>
+// <B>  -> <C><B> | <D>
+// <C>  -> <C><B> | <D>
+// <D>  -> b
+// <A>  -> a
 // `
 
 // const grammarSample = [
@@ -95,3 +96,16 @@ if (require.main === module) {
 //     { index: 15, symbol: 'ε', guidingSymbols: ['ε'], isError: true, pointer: -1, stackPushIndex: -1, isShift: false, isParsingEnd: false }
 // ];
 
+// const table: ParsingTable = [
+//     { index: 1, symbol: '<S>', guidingSymbols: ['a'], isError: true, pointer: 2, stackPushIndex: -1, isShift: false, isParsingEnd: false },
+//     { index: 2, symbol: 'a', guidingSymbols: ['a'], isError: true, pointer: 3, stackPushIndex: -1, isShift: true, isParsingEnd: false },
+//     { index: 3, symbol: '<B>', guidingSymbols: ['b'], isError: true, pointer: 5, stackPushIndex: 4, isShift: false, isParsingEnd: false },
+//     { index: 4, symbol: '#', guidingSymbols: ['#'], isError: true, pointer: -1, stackPushIndex: -1, isShift: true, isParsingEnd: true },
+//     { index: 5, symbol: '<B>', guidingSymbols: ['b'], isError: true, pointer: 6, stackPushIndex: -1, isShift: false, isParsingEnd: false },
+//     { index: 6, symbol: 'b', guidingSymbols: ['b'], isError: true, pointer: 7, stackPushIndex: -1, isShift: true, isParsingEnd: false },
+//     { index: 7, symbol: '<C>', guidingSymbols: ['b', 'ε'], isError: true, pointer: 8, stackPushIndex: -1, isShift: false, isParsingEnd: false },
+//     { index: 8, symbol: '<C>', guidingSymbols: ['b', 'ε'], isError: true, pointer: 9, stackPushIndex: -1, isShift: false, isParsingEnd: false },
+//     { index: 9, symbol: 'b', guidingSymbols: ['b'], isError: false, pointer: 11, stackPushIndex: -1, isShift: true, isParsingEnd: false },
+//     { index: 10, symbol: 'ε', guidingSymbols: ['ε'], isError: true, pointer: -1, stackPushIndex: -1, isShift: false, isParsingEnd: false },
+//     { index: 11, symbol: '<C>', guidingSymbols: ['b', 'ε'], isError: true, pointer: 8, stackPushIndex: -1, isShift: false, isParsingEnd: false }
+// ];

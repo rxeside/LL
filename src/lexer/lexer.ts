@@ -337,6 +337,7 @@ class Lexer {
             ':': Lexeme.COLON,
             '.': Lexeme.DOT,
             '!': Lexeme.NEGATION,
+            '#': Lexeme.GRID,
         }
 
         if (singleCharOperators[char]) {

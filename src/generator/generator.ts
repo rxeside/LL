@@ -1,11 +1,4 @@
-import {Table, TableRow} from '@common/types'
-import {
-    SEPARATOR_COMMA,
-    SEPARATOR_SPACED_FALLOW,
-    SEPARATOR_SPACED_SLASH,
-    SYMBOL_EMPTY,
-    SYMBOL_END,
-} from '@common/consts'
+import {TableRow} from '@common/types'
 
 const REGEXP: RegExp = /<[^>]+>|[^<>\s]+/g
 
