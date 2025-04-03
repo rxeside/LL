@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "lib": [
+      "es2015"
+    ],
+    "scripts": {
+      "build": "tsc",
+      "start": "node dist/index.js"
+    },
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.14",
+    "typescript": "^5.8.2"
+  }
+}
