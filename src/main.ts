@@ -1,7 +1,6 @@
-import {generateTable} from '@src/generator'
-import {parseTable} from '@src/parser'
-import {optimize} from '@src/optimizer'
+import {parseString} from '@src/parser'
 import {Lexer} from '@src/lexer'
+import { TableRow } from '@common/types'
 
 const NON_OPTIMIZED_GRAMMAR = `
 <Prog> -> <If>|<Ass>
@@ -17,6 +16,14 @@ const NON_OPTIMIZED_GRAMMAR = `
 <Number> -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 `
 
+// const NON_OPTIMIZED_GRAMMAR = `
+// <S>  -> <A><B>  
+// <B>  -> <C><B> | <D>  
+// <C>  -> <C><B> | <D>  
+// <D>  -> b  
+// <A>  -> a 
+// `
+
 // const grammarSample = [
 //     "<Prog> -> <If> / if",
 //     "<Prog> -> <Ass> / if",
@@ -25,23 +32,31 @@ const NON_OPTIMIZED_GRAMMAR = `
 //     "<Else> -> else<Ass> / else",
 // ]
 
+const table: TableRow[] = [
+    { index: 1, symbol: '<S>', guidingSymbols: new Set('a'), isError: true, pointer: 2, stackPushIndex: -1, isShift: false, isParsingEnd: false, rightSide: null },
+    { index: 2, symbol: 'a', guidingSymbols: new Set('a'), isError: true, pointer: 3, stackPushIndex: -1, isShift: true, isParsingEnd: false, rightSide: null },
+    { index: 3, symbol: '<B>', guidingSymbols: new Set('b'), isError: true, pointer: 5, stackPushIndex: 4, isShift: false, isParsingEnd: false, rightSide: null },
+    { index: 4, symbol: '#', guidingSymbols: new Set('#'), isError: true, pointer: -1, stackPushIndex: -1, isShift: true, isParsingEnd: true, rightSide: null },
+    { index: 5, symbol: '<B>', guidingSymbols: new Set('b'), isError: true, pointer: 6, stackPushIndex: -1, isShift: false, isParsingEnd: false, rightSide: null },
+    { index: 6, symbol: 'b', guidingSymbols: new Set('b'), isError: true, pointer: 7, stackPushIndex: -1, isShift: true, isParsingEnd: false, rightSide: null },
+    { index: 7, symbol: '<C>', guidingSymbols: new Set(['b', '#']), isError: true, pointer: 8, stackPushIndex: -1, isShift: false, isParsingEnd: false, rightSide: null },
+    { index: 8, symbol: '<C>', guidingSymbols: new Set(['b', '#']), isError: true, pointer: 9, stackPushIndex: -1, isShift: false, isParsingEnd: false, rightSide: null },
+    { index: 9, symbol: 'b', guidingSymbols: new Set('b'), isError: false, pointer: 10, stackPushIndex: -1, isShift: true, isParsingEnd: false, rightSide: null },
+    { index: 10, symbol: '<C>', guidingSymbols: new Set(['b', '#']), isError: true, pointer: 8, stackPushIndex: -1, isShift: false, isParsingEnd: false, rightSide: null }
+];
 
 const main = () => {
-    const optimizedGrammar = optimize(NON_OPTIMIZED_GRAMMAR)
-    const table = generateTable(optimizedGrammar.split('\n'))
-    console.log(table)
+    // const optimizedGrammar = optimize(NON_OPTIMIZED_GRAMMAR)
+    // const table = generateTable(optimizedGrammar.split('\n'))
+    // console.log(table)
 
-    const input = '// TODO: inputString'
+    const input = 'a b'
     const lexer = new Lexer()
     const tokens = lexer.tokenize(input)
     console.log(tokens)
 
     // TODO: тут нужно парсить токены а не строку, строка юзается только в Lexer
-    if (parseTable(table, '// TODO: tokens')) {
-        console.log('Строка принадлежит языку')
-    } else {
-        console.log('Строка НЕ принадлежит языку')
-    }
+    console.log(parseString(tokens, table))
 }
 
 if (require.main === module) {
@@ -80,16 +95,3 @@ if (require.main === module) {
 //     { index: 15, symbol: 'ε', guidingSymbols: ['ε'], isError: true, pointer: -1, stackPushIndex: -1, isShift: false, isParsingEnd: false }
 // ];
 
-// const table: ParsingTable = [
-//     { index: 1, symbol: '<S>', guidingSymbols: ['a'], isError: true, pointer: 2, stackPushIndex: -1, isShift: false, isParsingEnd: false },
-//     { index: 2, symbol: 'a', guidingSymbols: ['a'], isError: true, pointer: 3, stackPushIndex: -1, isShift: true, isParsingEnd: false },
-//     { index: 3, symbol: '<B>', guidingSymbols: ['b'], isError: true, pointer: 5, stackPushIndex: 4, isShift: false, isParsingEnd: false },
-//     { index: 4, symbol: '#', guidingSymbols: ['#'], isError: true, pointer: -1, stackPushIndex: -1, isShift: true, isParsingEnd: true },
-//     { index: 5, symbol: '<B>', guidingSymbols: ['b'], isError: true, pointer: 6, stackPushIndex: -1, isShift: false, isParsingEnd: false },
-//     { index: 6, symbol: 'b', guidingSymbols: ['b'], isError: true, pointer: 7, stackPushIndex: -1, isShift: true, isParsingEnd: false },
-//     { index: 7, symbol: '<C>', guidingSymbols: ['b', 'ε'], isError: true, pointer: 8, stackPushIndex: -1, isShift: false, isParsingEnd: false },
-//     { index: 8, symbol: '<C>', guidingSymbols: ['b', 'ε'], isError: true, pointer: 9, stackPushIndex: -1, isShift: false, isParsingEnd: false },
-//     { index: 9, symbol: 'b', guidingSymbols: ['b'], isError: false, pointer: 11, stackPushIndex: -1, isShift: true, isParsingEnd: false },
-//     { index: 10, symbol: 'ε', guidingSymbols: ['ε'], isError: true, pointer: -1, stackPushIndex: -1, isShift: false, isParsingEnd: false },
-//     { index: 11, symbol: '<C>', guidingSymbols: ['b', 'ε'], isError: true, pointer: 8, stackPushIndex: -1, isShift: false, isParsingEnd: false }
-// ];
