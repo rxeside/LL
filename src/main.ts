@@ -1,6 +1,6 @@
 import {generateTable} from '@src/generator'
 import {parseTable} from '@src/parser'
-import {optimize} from '@src/optimizer/optimizer'
+import {optimize} from '@src/optimizer'
 import {Lexer} from '@src/lexer'
 
 const NON_OPTIMIZED_GRAMMAR = `
