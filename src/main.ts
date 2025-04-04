@@ -4,7 +4,7 @@ import {optimize} from '@src/optimizer'
 import {Lexer} from '@src/lexer'
 import {Table} from '@common/types'
 
-const NON_OPTIMIZED_GRAMMAR = `
+/*const NON_OPTIMIZED_GRAMMAR = `
 <Prog> -> <If>|<Ass>
 <Ass> -> <Ident>=exp
 <If> -> if<Exp>then<Ass><Else>
@@ -16,6 +16,15 @@ const NON_OPTIMIZED_GRAMMAR = `
 <Factor> -> <Ident> | <Number> | (<Exp>)
 <Ident> -> a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z
 <Number> -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+`*/
+
+const NON_OPTIMIZED_GRAMMAR = `
+<S> -> 5<B>#
+<B> -> e
+<B> -> +<A><B>
+<B> -> *<A><B>
+<A> -> (<A>)
+<A> -> i
 `
 
 // const NON_OPTIMIZED_GRAMMAR = `

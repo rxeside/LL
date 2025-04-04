@@ -100,29 +100,98 @@ const generateTable = (grammar: string[]): Table => {
     }
 
     // указатель
-    for (const [_, lines] of Array.from(nonTerminalMap.entries())) {
-        for (let i = 0; i < lines.length; i++) {
-            const index = lines[i] - 1
-            table[index].pointer = lines[0]
-        }
-    }
-
-    // стек
-    for (const row of table) {
-        if (row.index < initialTable.length) {
-            row.stackPushIndex = null
-        } else {
-            if (row.symbol[0] == '<') {
-                for (const initialRow of initialTable) {
-                    if (row.symbol == initialRow.symbol) {
-                        row.stackPushIndex = initialRow.index
-                    }
-                }
-            } else {
-                row.stackPushIndex = row.index + 1
+    // Установка указателей для символов из левой части
+    for (const row of initialTable) {
+        for (const symbol of row.rightSide) {
+            const targetRow = table.find(r => r.symbol === symbol);
+            if (targetRow) {
+                row.pointer = targetRow.index;
+                break;
             }
         }
     }
+
+// Установка указателей для символов из правой части
+    for (const row of table) {
+        if (row.index <= initialTable.length) continue; // Пропускаем начальные строки
+        if (row.symbol.startsWith("<")) {
+            // Если символ - нетерминал, ищем первую строку, где он слева
+            const firstRow = initialTable.find(r => r.symbol === row.symbol);
+            if (firstRow) {
+                row.pointer = firstRow.index;
+            }
+        } else {
+            // Если символ - терминал
+            const parentRow = initialTable.find(r => r.rightSide.includes(row.symbol));
+            if (parentRow) {
+                const symbolIndex = parentRow.rightSide.lastIndexOf(row.symbol);
+                const isLast = symbolIndex === parentRow.rightSide.length - 1;
+
+                // Если символ последний в правой части, указатель null
+                row.pointer = isLast ? null : row.index + 1;
+            } else {
+                row.pointer = row.index + 1;
+            }
+        }
+    }
+
+
+    // стек
+    // Заполнение стека
+    /*for (const row of table) {
+        if (row.index <= initialTable.length) continue; // Пропускаем начальные строки
+
+        if (row.symbol.startsWith("<")) {
+            // Если символ - нетерминал, ищем его в правых частях правил
+            for (let i = 0; i < initialTable.length; i++) {
+                const parentRow = initialTable.slice(i, initialTable.length).find(r => r.rightSide.includes(row.symbol));
+
+                if (parentRow) {
+                    const symbolIndex = parentRow.rightSide.indexOf(row.symbol);
+                    // Если после нетерминала есть еще символы, записываем индекс следующего
+                    if (symbolIndex !== -1 && symbolIndex >= row.index - 1 && symbolIndex !== parentRow.rightSide.length - 1) {
+                        row.stackPushIndex = row.index+1;
+                    } else {
+                        row.stackPushIndex = null;
+                    }
+                }
+            }
+        } else {
+            // Терминалы не записываются в стек, они просто переходят на index + 1
+            row.stackPushIndex = null;
+        }
+    }*/
+
+    // Заполнение стека
+    for (const row of table) {
+        if (row.index <= initialTable.length) continue; // Пропускаем начальные строки
+
+        if (row.symbol.startsWith("<")) {
+            // Если символ - нетерминал, ищем его в правых частях правил
+            const parentRow = initialTable.find(r => r.rightSide.includes(row.symbol));
+
+            if (parentRow) {
+                const symbolIndex = parentRow.rightSide.indexOf(row.symbol);
+
+                // Если после нетерминала есть еще символы, записываем индекс следующего
+                if (symbolIndex !== -1 && symbolIndex + 1 < parentRow.rightSide.length) {
+                    const nextSymbol = parentRow.rightSide[symbolIndex + 1];
+                    const nextRow = table.slice(row.index - 1, table.length).find(r =>
+                        r.symbol === nextSymbol
+                    );
+                    row.stackPushIndex = nextRow ? nextRow.index : null;
+                } else {
+                    row.stackPushIndex = null;
+                }
+
+            }
+        } else {
+            // Терминалы не записываются в стек, они просто переходят на index + 1
+            row.stackPushIndex = null;
+        }
+    }
+
+
 
     // конец
     for (const row of table) {
