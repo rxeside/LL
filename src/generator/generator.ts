@@ -51,7 +51,7 @@ const generateTable = (grammar: string[]): Table => {
                 index: lineNumber,
                 symbol: symbol,
                 guidingSymbols: symbol[0] === '<'
-                    ? new Set(...equals.map(row => Array.from(row.guidingSymbols)))
+                    ? new Set(equals.flatMap(row => Array.from(row.guidingSymbols)))
                     : new Set(symbol),
                 isError: true,
                 isShift: false,
@@ -65,37 +65,37 @@ const generateTable = (grammar: string[]): Table => {
     }
 
     // замена e в left и в направляющих множествах
-    for (const row of table) {
-        let t: string[] = []
-        if (Array.from(row.guidingSymbols.values())[0] === SYMBOL_EMPTY || row.symbol === SYMBOL_EMPTY) {
-            const left = row.symbol
-            for (const row of initialTable) {
-                for (let i = 0; i < row.rightSide.length; i++) {
-                    if (row.rightSide[i] === left) {
-                        if (i + 1 < row.rightSide.length) {
-                            t.push(row.rightSide[i + 1])
-
-                        } else {
-                            t.push(SYMBOL_END)
-                        }
-                    }
+    table.forEach((row, tableIndex) => {
+        if (row.symbol === SYMBOL_EMPTY) {
+            let startIdx = 0
+            for (let i = tableIndex - 1; i >= 0; i--) {
+                if (table[i].symbol === SYMBOL_EMPTY) {
+                    startIdx = i + 1
+                    break
                 }
             }
-            row.guidingSymbols = new Set(...t)
+            let tempTable: Table = table.slice(startIdx, tableIndex + 1)
+            row.guidingSymbols = new Set(getGuidingSymbolsForEmpty(row.symbol, tempTable, []))
+        } else if (Array.from(row.guidingSymbols.values())[0] === SYMBOL_EMPTY && row.symbol !== SYMBOL_EMPTY) {
+            row.guidingSymbols = new Set(getGuidingSymbolsForEmpty(row.symbol, table, []))
         }
-    }
+    })
 
     // флаг ошибки
-    for (let i = 0; i < lineNumber; i++) {
-        if (i >= lineNumber - 1) {
-            break
-        }
+    for (let i = 0; i < initialTable.length - 1; i++) {
         if (!table[i] || !table[i + 1]) {
             console.error(`Ошибка: table[${i}] или table[${i + 1}] равно undefined`)
             continue
         }
         if (table[i].symbol === table[i + 1].symbol) {
             table[i].isError = false
+        }
+    }
+
+    // переход
+    for (let i = 0; i < table.length; i++) {
+        if (table[i].symbol[0] != '<' && table[i].symbol !== SYMBOL_EMPTY) {
+            table[i].isShift = true
         }
     }
 
@@ -201,15 +201,33 @@ const generateTable = (grammar: string[]): Table => {
     return table
 }
 
-const getGuidingSymbolsForEmpty = (currentLeft: string, table: Table, temp: string[]): string[] => {
+const getGuidingSymbolsForEmpty = (
+    currentLeft: string,
+    table: Table | null,
+    temp: string[],
+    visited: Set<string> = new Set(),
+): string[] => {
+    if (!table) {
+        return temp
+    }
+
+    if (visited.has(currentLeft)) return temp
+    visited.add(currentLeft)
+
     table.forEach((row, tableIndex) => {
+        if (!row || !row.rightSide) {
+            return
+        }
+
         row.rightSide.forEach((rightSymbol, index) => {
             if (currentLeft === rightSymbol) {
                 if (index === row.rightSide.length - 1) {
-                    if (tableIndex == 0) {
-                        temp.push(SYMBOL_END)
+                    if (tableIndex === 0) {
+                        if (!temp.includes(SYMBOL_END)) {
+                            temp.push(SYMBOL_END)
+                        }
                     } else {
-                        temp.push(...getGuidingSymbolsForEmpty(row.symbol, table, temp))
+                        temp.push(...getGuidingSymbolsForEmpty(row.symbol, table, temp, visited))
                     }
                 } else {
                     temp.push(...getGuidingSymbols(table, rightSymbol))
