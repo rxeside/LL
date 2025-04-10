@@ -18,14 +18,14 @@ import {Table} from '@common/types'
 <Number> -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 `*/
 
-const NON_OPTIMIZED_GRAMMAR = `
+/*const NON_OPTIMIZED_GRAMMAR = `
 <S> -> 5<B>#
 <B> -> e
 <B> -> +<A><B>
 <B> -> *<A><B>
 <A> -> (<A>)
 <A> -> i
-`
+`*/
 
 // const NON_OPTIMIZED_GRAMMAR = `
 // <Prog> -> <If>|<Ass>

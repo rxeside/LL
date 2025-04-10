@@ -1,3 +1,8 @@
+type RightSideSymbol = {
+    symbol: string
+    order: number
+}
+
 type TableRow = {
     index: number
     symbol: string
@@ -7,8 +12,10 @@ type TableRow = {
     pointer: number | null
     stackPushIndex: number | null
     isParsingEnd: boolean
-    rightSide: string[] | null
-};
+    rightSide: RightSideSymbol[] | null
+    parentRuleIndex?: number
+    orderInRule?: number
+}
 
 type Table = TableRow[]
 
@@ -75,6 +82,7 @@ type Token = {
 };
 
 export {
+    RightSideSymbol,
     TableRow,
     Table,
     Lexeme,

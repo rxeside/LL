@@ -18,9 +18,15 @@ const generateTable = (grammar: string[]): Table => {
     // первые строки - инициализация по альтернативам
     for (const rule of grammar) {
         const [production, guidingPart] = rule.split(SEPARATOR_SPACED_SLASH)
-        const [leftSide, rightSide] = production.split(SEPARATOR_SPACED_FALLOW)
+        const [leftSide, rightSideRaw] = production.split(SEPARATOR_SPACED_FALLOW)
         const guidingSymbols = new Set(guidingPart.split(SEPARATOR_COMMA).map(s => s.trim()))
-        const symbols = rightSide.match(REGEXP) || []
+        const symbols = rightSideRaw.match(REGEXP) || []
+
+        const rightSide = symbols.map((s, i) => ({
+            symbol: s,
+            order: i
+        }))
+
         const row: TableRow = {
             index: lineNumber,
             symbol: leftSide,
@@ -30,7 +36,7 @@ const generateTable = (grammar: string[]): Table => {
             pointer: null,
             stackPushIndex: null,
             isParsingEnd: false,
-            rightSide: symbols,
+            rightSide: rightSide,
         }
         initialTable.push(row)
         table.push(row)
@@ -45,8 +51,11 @@ const generateTable = (grammar: string[]): Table => {
 
     // строки до конца
     for (const row of initialTable) {
-        for (const symbol of row.rightSide) {
+        for (const symbolObj of row.rightSide ?? []) {
+            const symbol = symbolObj.symbol;
+            const order = symbolObj.order;
             const equals = initialTable.filter(row => row.symbol === symbol)
+
             table.push({
                 index: lineNumber,
                 symbol: symbol,
@@ -58,7 +67,9 @@ const generateTable = (grammar: string[]): Table => {
                 pointer: null,
                 stackPushIndex: null,
                 isParsingEnd: false,
-                rightSide: null,
+                rightSide: [symbolObj],
+                parentRuleIndex: row.index,
+                orderInRule: order
             })
             lineNumber++
         }
@@ -122,10 +133,12 @@ const generateTable = (grammar: string[]): Table => {
             }
         } else {
             // Если символ - терминал
-            const parentRow = initialTable.find(r => r.rightSide.includes(row.symbol));
+            const parentRow = initialTable.find(r =>
+                r.rightSide?.some(s => s.symbol === row.symbol)
+            );
             if (parentRow) {
-                const symbolIndex = parentRow.rightSide.lastIndexOf(row.symbol);
-                const isLast = symbolIndex === parentRow.rightSide.length - 1;
+                const symbolIndex = parentRow?.rightSide?.map(s => s.symbol).lastIndexOf(row.symbol) ?? -1;
+                const isLast = symbolIndex === parentRow.rightSide!.length - 1;
 
                 // Если символ последний в правой части, указатель null
                 row.pointer = isLast ? null : row.index + 1;
@@ -136,34 +149,39 @@ const generateTable = (grammar: string[]): Table => {
     }
 
 
-    // стек
-    // Заполнение стека
-    /*for (const row of table) {
-        if (row.index <= initialTable.length) continue; // Пропускаем начальные строки
+    for (const row of table) {
+        if (row.index <= initialTable.length) continue;
 
-        if (row.symbol.startsWith("<")) {
-            // Если символ - нетерминал, ищем его в правых частях правил
-            for (let i = 0; i < initialTable.length; i++) {
-                const parentRow = initialTable.slice(i, initialTable.length).find(r => r.rightSide.includes(row.symbol));
-
-                if (parentRow) {
-                    const symbolIndex = parentRow.rightSide.indexOf(row.symbol);
-                    // Если после нетерминала есть еще символы, записываем индекс следующего
-                    if (symbolIndex !== -1 && symbolIndex >= row.index - 1 && symbolIndex !== parentRow.rightSide.length - 1) {
-                        row.stackPushIndex = row.index+1;
-                    } else {
-                        row.stackPushIndex = null;
-                    }
-                }
+        if (row.symbol.startsWith("<") && row.parentRuleIndex !== undefined && row.orderInRule !== undefined) {
+            const parentRule = initialTable.find(r => r.index === row.parentRuleIndex);
+            if (!parentRule || !parentRule.rightSide) {
+                row.stackPushIndex = null;
+                continue;
             }
+
+            const nextSymbol = parentRule.rightSide.find(rs => rs.order === row.orderInRule + 1);
+
+            if (nextSymbol) {
+                const nextRow = table.find(t =>
+                    t.parentRuleIndex === row.parentRuleIndex &&
+                    t.orderInRule === nextSymbol.order &&
+                    t.symbol === nextSymbol.symbol
+                );
+
+                row.stackPushIndex = nextRow?.index ?? null;
+            } else {
+                row.stackPushIndex = null;
+            }
+
         } else {
-            // Терминалы не записываются в стек, они просто переходят на index + 1
             row.stackPushIndex = null;
         }
-    }*/
+    }
+
+
 
     // Заполнение стека
-    for (const row of table) {
+    /*for (const row of table) {
         if (row.index <= initialTable.length) continue; // Пропускаем начальные строки
 
         if (row.symbol.startsWith("<")) {
@@ -189,7 +207,7 @@ const generateTable = (grammar: string[]): Table => {
             // Терминалы не записываются в стек, они просто переходят на index + 1
             row.stackPushIndex = null;
         }
-    }
+    }*/
 
 
 
@@ -230,7 +248,7 @@ const getGuidingSymbolsForEmpty = (
                         temp.push(...getGuidingSymbolsForEmpty(row.symbol, table, temp, visited))
                     }
                 } else {
-                    temp.push(...getGuidingSymbols(table, rightSymbol))
+                    temp.push(...getGuidingSymbols(table, row.rightSide[index + 1].symbol))
                 }
             }
         })
