@@ -69,7 +69,7 @@ const main = () => {
     const table = generateTable(optimizedGrammar.split('\n'))
     console.log(table)
 
-    const input = '( i ) + i * i #)'
+    const input = '( i ) #'
     const lexer = new Lexer()
     const tokens = lexer.tokenize(input)
     console.log(tokens)
