@@ -112,15 +112,29 @@ const generateTable = (grammar: string[]): Table => {
 
     // указатель
     // Установка указателей для символов из левой части
+    // Указатель на первую строку правой части правила
     for (const row of initialTable) {
-        for (const symbol of row.rightSide) {
-            const targetRow = table.find(r => r.symbol === symbol);
-            if (targetRow) {
-                row.pointer = targetRow.index;
-                break;
-            }
+        if (!row.rightSide || row.rightSide.length === 0) continue;
+
+        const firstRightSymbol = row.rightSide[0];
+
+        // Ищем строку в table, которая:
+        // - принадлежит этому же правилу (по parentRuleIndex)
+        // - находится на позиции 0 (orderInRule === 0)
+        // - и имеет нужный символ
+        const targetRow = table.find(r =>
+            r.parentRuleIndex === row.index &&
+            r.orderInRule === 0 &&
+            r.symbol === firstRightSymbol.symbol
+        );
+
+        if (targetRow) {
+            row.pointer = targetRow.index;
+        } else {
+            row.pointer = null;
         }
     }
+
 
 // Установка указателей для символов из правой части
     for (const row of table) {
