@@ -27,7 +27,7 @@ const parseString = (tokens: Token[], table: TableRow[]): string => {
             if (row.stackPushIndex !== null) stack.push(row.stackPushIndex) // Добавляем в стек, если указано
             if (row.pointer !== null) stack.push(row.pointer) // Переходим к следующему шагу
             if (pointer === tokens.length) return `OK\nTrace:\n${trace.join('\n')}`
-        } else if (currentToken.type == 'EOF') {
+        } else if ((currentToken.type == 'EOF') || (currentToken.type == '#')) {
             return `OK\nTrace:\n${trace.join('\n')}`
         }
         // Если символ не подходит и isError == true, пропускаем этот вариант
